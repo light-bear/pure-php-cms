@@ -38,11 +38,7 @@ final class KeyAgreeRecipientInfo
         foreach ($recipientCertificates as $recipientCertificate) {
             $certificate = CertificateInfo::load($recipientCertificate, $decoder);
             $recipientPublicKey = openssl_pkey_get_public($certificate->pem());
-            $sharedSecret = openssl_pkey_derive(
-                $recipientPublicKey,
-                $originatorPrivateKey,
-                32
-            );
+            $sharedSecret = openssl_pkey_derive($recipientPublicKey, $originatorPrivateKey);
             if ($sharedSecret === false) {
                 throw new CmsException('ECDH 共享密钥计算失败');
             }
@@ -75,11 +71,7 @@ final class KeyAgreeRecipientInfo
         $certificate = CertificateInfo::load($recipientCertificate, $decoder);
         $originatorKey = $recipientInfo->children[1]->children[0];
         $originatorPublicKey = self::publicKeyFromOriginator($originatorKey);
-        $sharedSecret = openssl_pkey_derive(
-            $originatorPublicKey,
-            $recipientPrivateKey,
-            32
-        );
+        $sharedSecret = openssl_pkey_derive($originatorPublicKey, $recipientPrivateKey);
         if ($sharedSecret === false) {
             throw new CmsException('ECDH 共享密钥恢复失败');
         }

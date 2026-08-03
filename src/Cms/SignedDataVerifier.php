@@ -29,8 +29,22 @@ final class SignedDataVerifier
 
     public function verifyAll($encodedCms, $externalContent, array $externalCertificates)
     {
+        try {
+            return $this->verifyAllChecked($encodedCms, $externalContent, $externalCertificates);
+        } catch (CmsException $error) {
+            throw $error;
+        } catch (\Throwable $error) {
+            throw new CmsException('CMS SignedData 结构无效');
+        }
+    }
+
+    private function verifyAllChecked($encodedCms, $externalContent, array $externalCertificates)
+    {
         $signedData = $this->readSignedData($encodedCms);
         $fields = $signedData->children;
+        if (!isset($fields[Structure::SIGNED_DATA_ENCAP_CONTENT])) {
+            throw new CmsException('SignedData 结构不完整');
+        }
         $content = $this->readContent(
             $fields[Structure::SIGNED_DATA_ENCAP_CONTENT],
             $externalContent
@@ -130,12 +144,19 @@ final class SignedDataVerifier
         $contentInfo = $this->decoder->decode(Values::decodePem($encodedCms));
         Values::expect($contentInfo, 0, 16, true);
 
+        if (!isset(
+            $contentInfo->children[Structure::CONTENT_INFO_TYPE],
+            $contentInfo->children[Structure::CONTENT_INFO_CONTENT]
+        )) {
+            throw new CmsException('CMS ContentInfo 结构不完整');
+        }
         if (Values::oid($contentInfo->children[Structure::CONTENT_INFO_TYPE]) !== ObjectIdentifiers::SIGNED_DATA) {
             throw new CmsException('输入内容不是 CMS SignedData');
         }
 
         $wrapper = $contentInfo->children[Structure::CONTENT_INFO_CONTENT];
         Values::expect($wrapper, 2, 0, true);
+        if (!isset($wrapper->children[0])) throw new CmsException('CMS SignedData 包装为空');
         $signedData = $wrapper->children[0];
         Values::expect($signedData, 0, 16, true);
         return $signedData;
@@ -222,6 +243,24 @@ final class SignedDataVerifier
         CertificateInfo $certificate,
         array $algorithm
     ) {
+        if ($certificate->publicKeyType() !== OPENSSL_KEYTYPE_RSA) {
+            throw new CmsException('当前 SignedData 验证器仅支持 RSA 签名证书');
+        }
+        $signatureAlgorithm = $signerInfo->children[Structure::SIGNER_SIGNATURE_ALGORITHM];
+        Values::expect($signatureAlgorithm, 0, 16, true);
+        if (!isset($signatureAlgorithm->children[0])) {
+            throw new CmsException('SignerInfo 缺少 signatureAlgorithm OID');
+        }
+        $signatureOid = Values::oid($signatureAlgorithm->children[0]);
+        $allowed = [ObjectIdentifiers::RSA_ENCRYPTION];
+        if ($algorithm['oid'] === ObjectIdentifiers::SHA1) {
+            $allowed[] = ObjectIdentifiers::SHA1_WITH_RSA;
+        } elseif ($algorithm['oid'] === ObjectIdentifiers::SHA256) {
+            $allowed[] = ObjectIdentifiers::SHA256_WITH_RSA;
+        }
+        if (!in_array($signatureOid, $allowed, true)) {
+            throw new CmsException('signatureAlgorithm 与摘要算法或证书公钥类型不匹配');
+        }
         $signature = Values::octetString($signerInfo->children[Structure::SIGNER_SIGNATURE]);
         $signatureInput = SignedAttributes::signatureInput($signedAttributes->value);
         $result = openssl_verify(

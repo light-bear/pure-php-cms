@@ -35,7 +35,7 @@ final class DigestedData
         return new ContentInfo(ContentTypes::DIGESTED_DATA, $value);
     }
 
-    public static function verify(ContentInfo $contentInfo, $externalContent = null, Decoder $decoder = null)
+    public static function verify(ContentInfo $contentInfo, $externalContent = null, ?Decoder $decoder = null)
     {
         if ($contentInfo->contentType() !== ContentTypes::DIGESTED_DATA) {
             throw new CmsException('ContentInfo 不是 DigestedData');

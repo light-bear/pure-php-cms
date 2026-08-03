@@ -44,6 +44,9 @@ final class SignedDataGenerator
                 isset($signer['digest']) ? $signer['digest'] : 'sha256'
             );
             $certificate = CertificateInfo::load($signer['certificate'], $this->decoder);
+            if ($certificate->publicKeyType() !== OPENSSL_KEYTYPE_RSA) {
+                throw new CmsException('当前 SignedData 生成器仅支持 RSA 签名证书');
+            }
             $attributesContent = SignedAttributes::create(
                 $content,
                 $algorithm,
@@ -72,6 +75,9 @@ final class SignedDataGenerator
                     $counterSigner['certificate'],
                     $this->decoder
                 );
+                if ($counterCertificate->publicKeyType() !== OPENSSL_KEYTYPE_RSA) {
+                    throw new CmsException('当前 SignedData 生成器仅支持 RSA 反签名证书');
+                }
                 $counterAttributes = SignedAttributes::createCounterSignature(
                     $signature,
                     $counterAlgorithm,
@@ -171,7 +177,7 @@ final class SignedDataGenerator
             $signerIdentifier,
             $digestIdentifier,
             Encoder::implicitConstructed(0, $attributesContent),
-            $this->algorithmIdentifier(ObjectIdentifiers::RSA_ENCRYPTION),
+            $this->algorithmIdentifier($this->signatureAlgorithmOid($digestIdentifier)),
             Encoder::octetString($signature),
         ];
         if ($unsignedAttributes !== null) {
@@ -192,5 +198,14 @@ final class SignedDataGenerator
     private function algorithmIdentifier($oid)
     {
         return Encoder::sequence([Encoder::oid($oid), Encoder::null()]);
+    }
+
+    private function signatureAlgorithmOid($digestIdentifier)
+    {
+        $node = $this->decoder->decode($digestIdentifier);
+        $digestOid = \PurePhpCms\Asn1\Values::oid($node->children[0]);
+        if ($digestOid === ObjectIdentifiers::SHA1) return ObjectIdentifiers::SHA1_WITH_RSA;
+        if ($digestOid === ObjectIdentifiers::SHA256) return ObjectIdentifiers::SHA256_WITH_RSA;
+        throw new CmsException('没有与摘要算法匹配的 RSA 签名算法');
     }
 }

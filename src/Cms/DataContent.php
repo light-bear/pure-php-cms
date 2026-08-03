@@ -17,7 +17,7 @@ final class DataContent
         return new ContentInfo(ContentTypes::DATA, Encoder::octetString($bytes));
     }
 
-    public static function read(ContentInfo $contentInfo, Decoder $decoder = null)
+    public static function read(ContentInfo $contentInfo, ?Decoder $decoder = null)
     {
         if ($contentInfo->contentType() !== ContentTypes::DATA) {
             throw new CmsException('ContentInfo 不是 Data 类型');

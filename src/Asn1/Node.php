@@ -22,7 +22,7 @@ final class Node
      *
      * @param Node[]|null $children
      */
-    public function __construct($tag, $class, $constructed, $value, $raw, $offset, array $children = null)
+    public function __construct($tag, $class, $constructed, $value, $raw, $offset, ?array $children = null)
     {
         $this->tag = $tag;
         $this->class = $class;

@@ -54,15 +54,35 @@ final class Encoder
     private static function oidValue($oid)
     {
         // OID 前两个节点合并，后续节点采用 base-128 可变长度编码。
-        $parts = array_map('intval', explode('.', $oid));
-        if (count($parts) < 2 || $parts[0] > 2 || $parts[1] > 39 && $parts[0] < 2) throw new CmsException('Invalid OID');
-        $out = chr($parts[0] * 40 + $parts[1]);
-        foreach (array_slice($parts, 2) as $part) {
-            $chunk = chr($part & 0x7f);
-            while (($part >>= 7) > 0) $chunk = chr(0x80 | ($part & 0x7f)) . $chunk;
-            $out .= $chunk;
+        if (!is_string($oid) || !preg_match('/^(0|1|2)(?:\.(?:0|[1-9][0-9]*))+$/D', $oid)) {
+            throw new CmsException('Invalid OID');
         }
+        $parts = explode('.', $oid);
+        $first = (int) array_shift($parts);
+        $second = self::decimalArcToInt(array_shift($parts));
+        if ($first < 2 && $second > 39) throw new CmsException('Invalid OID');
+        if ($first === 2 && $second > PHP_INT_MAX - 80) {
+            throw new CmsException('OID first subidentifier is too large');
+        }
+        $out = self::base128($first * 40 + $second);
+        foreach ($parts as $part) $out .= self::base128(self::decimalArcToInt($part));
         return $out;
+    }
+
+    private static function decimalArcToInt($arc)
+    {
+        if (strlen($arc) > strlen((string) PHP_INT_MAX)
+            || (strlen($arc) === strlen((string) PHP_INT_MAX) && strcmp($arc, (string) PHP_INT_MAX) > 0)) {
+            throw new CmsException('OID arc is too large');
+        }
+        return (int) $arc;
+    }
+
+    private static function base128($value)
+    {
+        $bytes = chr($value & 0x7f);
+        while (($value >>= 7) > 0) $bytes = chr(0x80 | ($value & 0x7f)) . $bytes;
+        return $bytes;
     }
 
     private static function unsignedInteger($number)

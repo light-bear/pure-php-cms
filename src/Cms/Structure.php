@@ -19,6 +19,7 @@ final class Structure
     const SIGNER_IDENTIFIER = 1;
     const SIGNER_DIGEST_ALGORITHM = 2;
     const SIGNER_SIGNED_ATTRIBUTES = 3;
+    const SIGNER_SIGNATURE_ALGORITHM = 4;
     const SIGNER_SIGNATURE = 5;
     const SIGNER_UNSIGNED_ATTRIBUTES = 6;
 }

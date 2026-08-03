@@ -23,18 +23,26 @@ final class Values
             throw new CmsException('OID 内容为空');
         }
 
-        $first = ord($node->value[0]);
-        $parts = [$first < 80 ? intdiv($first, 40) : 2, $first < 80 ? $first % 40 : $first - 80];
+        $subidentifiers = [];
         $value = 0;
-
-        for ($index = 1, $length = strlen($node->value); $index < $length; $index++) {
+        $inArc = false;
+        for ($index = 0, $length = strlen($node->value); $index < $length; $index++) {
             $byte = ord($node->value[$index]);
+            if (!$inArc && $byte === 0x80) throw new CmsException('OID 使用了非最短编码');
+            if ($value > intdiv(PHP_INT_MAX - 127, 128)) throw new CmsException('OID 节点超出整数范围');
             $value = ($value << 7) | ($byte & 0x7f);
+            $inArc = true;
             if (($byte & 0x80) === 0) {
-                $parts[] = $value;
+                $subidentifiers[] = $value;
                 $value = 0;
+                $inArc = false;
             }
         }
+        if ($inArc || $subidentifiers === []) throw new CmsException('OID 节点未终止');
+
+        $first = array_shift($subidentifiers);
+        $parts = [$first < 80 ? intdiv($first, 40) : 2, $first < 80 ? $first % 40 : $first - 80];
+        foreach ($subidentifiers as $part) $parts[] = $part;
 
         return implode('.', $parts);
     }

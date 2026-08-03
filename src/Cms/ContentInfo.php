@@ -26,7 +26,7 @@ final class ContentInfo
         $this->content = $encodedContent;
     }
 
-    public static function decode($encoded, Decoder $decoder = null)
+    public static function decode($encoded, ?Decoder $decoder = null)
     {
         $decoder = $decoder ?: new Decoder();
         $root = $decoder->decode(Values::decodePem($encoded));
@@ -58,7 +58,7 @@ final class ContentInfo
     public function contentTypeName() { return ContentTypes::name($this->contentType); }
     public function encodedContent() { return $this->content; }
 
-    public function contentNode(Decoder $decoder = null)
+    public function contentNode(?Decoder $decoder = null)
     {
         return ($decoder ?: new Decoder())->decode($this->content);
     }

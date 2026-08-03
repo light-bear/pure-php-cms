@@ -7,12 +7,16 @@
         "php": ">=7.4",
         "ext-openssl": "*"
     },
+    "require-dev": {
+        "phpunit/phpunit": "^9.6"
+    },
     "autoload": {
         "psr-4": {"PurePhpCms\\": "src/"}
     },
+    "autoload-dev": {
+        "psr-4": {"PurePhpCms\\Tests\\": "tests/"}
+    },
     "scripts": {
-        "test": [
-            "php tests/run.php"
-        ]
+        "test": "php -d error_reporting=E_ALL vendor/bin/phpunit"
     }
 }

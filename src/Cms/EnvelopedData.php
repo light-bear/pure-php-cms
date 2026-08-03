@@ -20,7 +20,7 @@ final class EnvelopedData
         $content,
         array $recipientCertificates,
         $contentEncryptionAlgorithm = 'aes-256-cbc',
-        Decoder $decoder = null
+        ?Decoder $decoder = null
     ) {
         if ($recipientCertificates === []) {
             throw new CmsException('EnvelopedData 至少需要一个接收者');
@@ -69,7 +69,7 @@ final class EnvelopedData
         $originatorPrivateKey,
         array $recipientCertificates,
         $contentEncryptionAlgorithm = 'aes-256-cbc',
-        Decoder $decoder = null
+        ?Decoder $decoder = null
     ) {
         if ($recipientCertificates === []) {
             throw new CmsException('KeyAgreeRecipientInfo 至少需要一个接收者');
@@ -130,7 +130,7 @@ final class EnvelopedData
         ContentInfo $contentInfo,
         $recipientCertificate,
         $recipientPrivateKey,
-        Decoder $decoder = null
+        ?Decoder $decoder = null
     ) {
         if ($contentInfo->contentType() !== ContentTypes::ENVELOPED_DATA) {
             throw new CmsException('ContentInfo 不是 EnvelopedData');
@@ -161,7 +161,7 @@ final class EnvelopedData
         ContentInfo $contentInfo,
         $keyIdentifier,
         $keyEncryptionKey,
-        Decoder $decoder = null
+        ?Decoder $decoder = null
     ) {
         return self::decryptWithResolver(
             $contentInfo,
@@ -181,7 +181,7 @@ final class EnvelopedData
         ContentInfo $contentInfo,
         $recipientCertificate,
         $recipientPrivateKey,
-        Decoder $decoder = null
+        ?Decoder $decoder = null
     ) {
         $decoder = $decoder ?: new Decoder();
         return self::decryptWithResolver(
@@ -202,7 +202,7 @@ final class EnvelopedData
     public static function decryptWithPassword(
         ContentInfo $contentInfo,
         $password,
-        Decoder $decoder = null
+        ?Decoder $decoder = null
     ) {
         return self::decryptWithResolver(
             $contentInfo,
@@ -218,7 +218,7 @@ final class EnvelopedData
     public static function decryptWithOther(
         ContentInfo $contentInfo,
         callable $resolver,
-        Decoder $decoder = null
+        ?Decoder $decoder = null
     ) {
         return self::decryptWithResolver(
             $contentInfo,
@@ -255,7 +255,7 @@ final class EnvelopedData
     private static function decryptWithResolver(
         ContentInfo $contentInfo,
         callable $resolver,
-        Decoder $decoder = null
+        ?Decoder $decoder = null
     ) {
         if ($contentInfo->contentType() !== ContentTypes::ENVELOPED_DATA) {
             throw new CmsException('ContentInfo 不是 EnvelopedData');

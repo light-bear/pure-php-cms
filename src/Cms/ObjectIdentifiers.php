@@ -16,4 +16,6 @@ final class ObjectIdentifiers
     const SHA1 = '1.3.14.3.2.26';
     const SHA256 = '2.16.840.1.101.3.4.2.1';
     const RSA_ENCRYPTION = '1.2.840.113549.1.1.1';
+    const SHA1_WITH_RSA = '1.2.840.113549.1.1.5';
+    const SHA256_WITH_RSA = '1.2.840.113549.1.1.11';
 }

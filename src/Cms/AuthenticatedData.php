@@ -52,7 +52,7 @@ final class AuthenticatedData
         $keyIdentifier,
         $keyEncryptionKey,
         $externalContent = null,
-        Decoder $decoder = null
+        ?Decoder $decoder = null
     ) {
         if ($contentInfo->contentType() !== ContentTypes::AUTHENTICATED_DATA) {
             throw new CmsException('ContentInfo 不是 AuthenticatedData');

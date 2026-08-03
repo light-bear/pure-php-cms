@@ -20,7 +20,7 @@ final class EncryptedData
         return new ContentInfo(ContentTypes::ENCRYPTED_DATA, $value);
     }
 
-    public static function decrypt(ContentInfo $contentInfo, $key, Decoder $decoder = null)
+    public static function decrypt(ContentInfo $contentInfo, $key, ?Decoder $decoder = null)
     {
         if ($contentInfo->contentType() !== ContentTypes::ENCRYPTED_DATA) {
             throw new CmsException('ContentInfo 不是 EncryptedData');
