@@ -1,0 +1,18 @@
+{
+    "name": "madman/pure-php-cms",
+    "description": "PHP 7.4 compatible RFC 3852 CMS implementation with a pure PHP ASN.1 layer.",
+    "type": "library",
+    "license": "MIT",
+    "require": {
+        "php": ">=7.4",
+        "ext-openssl": "*"
+    },
+    "autoload": {
+        "psr-4": {"PurePhpCms\\": "src/"}
+    },
+    "scripts": {
+        "test": [
+            "php tests/run.php"
+        ]
+    }
+}

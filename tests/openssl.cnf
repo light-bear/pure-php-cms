@@ -1,0 +1,16 @@
+openssl_conf = openssl_init
+[openssl_init]
+providers = provider_sect
+[provider_sect]
+default = default_sect
+[default_sect]
+activate = 1
+[req]
+distinguished_name = dn
+prompt = no
+x509_extensions = v3_cert
+[dn]
+CN = Pure PHP CMS Test
+[v3_cert]
+subjectKeyIdentifier = hash
+authorityKeyIdentifier = keyid,issuer
