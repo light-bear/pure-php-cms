@@ -128,7 +128,6 @@ SHA-1 仅用于验证和兼容旧系统数据。创建新签名时应使用 SHA-
 - `src/Format/`：PEM 与 opaque S/MIME 格式转换。
 - `src/X509/`：CMS 所需的证书标识信息提取。
 - `tests/run.php`：功能、安全失败路径和格式互转测试。
-- `tests/citic.php`：仓库中信银行测试数据验签。
 
 ## SignedData 使用示例
 
@@ -230,8 +229,6 @@ composer test
 - DER、PEM 和 opaque S/MIME 格式互转。
 - 错误证书、密钥、KEK 标识、口令、MAC、摘要和篡改数据的失败路径。
 - CMS version 字段及异常 BER 输入。
-- 上级仓库中的中信银行证书与真实签名测试数据。
-- 修改中信业务原文后必须验签失败。
 
 现有自动测试通过不代表实现已经获得完整验证。正式采用前至少还应完成：
 
